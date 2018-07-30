@@ -1,12 +1,5 @@
 """create by zhouzhiyang"""
-import redis
-from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
-from flask_session import Session
-from flask_wtf.csrf import CSRFProtect
-from config import Config
-
-app = Flask(__name__)
+from info import create_app
 
 """
 配置信息:
@@ -18,22 +11,7 @@ app = Flask(__name__)
 6.迁移配置
 """
 
-
-
-# 加载配置类到app
-app.config.from_object(Config)
-
-# 创建SQLAlchemy对象,关联app
-db = SQLAlchemy(app)
-
-# 创建redis对象
-redis_store = redis.StrictRedis(host=Config.REDIS_HOST, port=Config.REDIS_PORT, decode_responses=True)
-
-# 初始化session
-Session(app)
-
-# 设置csrf保护
-CSRFProtect(app)
+app = create_app("develop")
 
 
 @app.route('/', methods=['GET', 'POST'])
