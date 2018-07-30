@@ -24,6 +24,9 @@ class Config(object):
     SESSION_REDIS = redis.StrictRedis(host=REDIS_HOST, port=REDIS_PORT)
     PERMANENT_SESSION_LIFETIME = 3600 * 24 * 2  # 设置存储时间为2天,单位秒
 
+    # 设置默认日志级别
+    LEVEL = logging.DEBUG
+
 
 # 开发环境配置信息
 class DevelopConfig(Config):
