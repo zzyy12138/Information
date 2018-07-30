@@ -4,6 +4,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_session import Session
 from flask_wtf.csrf import CSRFProtect
+from config import Config
 
 app = Flask(__name__)
 
@@ -17,26 +18,6 @@ app = Flask(__name__)
 6.迁移配置
 """
 
-
-# 设置基础配置类
-class Config(object):
-    # 设置启动模式,秘钥
-    DEBUG = True
-    SECRET_KEY = "jfkdjfkdk"
-
-    # 数据库配置
-    SQLALCHEMY_DATABASE_URI = "mysql://root:mysql@localhost:3306/Information"
-    SQLALCHEMY_TRACK_MODIFICATIONS = False
-
-    # redis配置
-    REDIS_HOST = '127.0.0.1'
-    REDIS_PORT = 6379
-
-    # 设置session配置信息
-    SESSION_TYPE = 'redis'  # 保存类型
-    SESSION_USE_SIGNER = True  # 签名存储
-    SESSION_REDIS = redis.StrictRedis(host=REDIS_HOST, port=REDIS_PORT)
-    PERMANENT_SESSION_LIFETIME = 3600 * 24 * 2  # 设置存储时间为2天,单位秒
 
 
 # 加载配置类到app
