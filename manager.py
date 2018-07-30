@@ -20,11 +20,5 @@ manager = Manager(app)
 Migrate(app, db)
 manager.add_command('db', MigrateCommand)
 
-
-@app.route('/', methods=['GET', 'POST'])
-def hello():
-    return 'hello'
-
-
 if __name__ == '__main__':
     manager.run()
