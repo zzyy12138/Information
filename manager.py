@@ -1,5 +1,7 @@
 """create by zhouzhiyang"""
-from info import create_app
+from info import create_app, db
+from flask_migrate import Migrate, MigrateCommand
+from flask_script import Manager
 
 """
 配置信息:
@@ -13,6 +15,11 @@ from info import create_app
 
 app = create_app("develop")
 
+# 配置数据库迁移
+manager = Manager(app)
+Migrate(app, db)
+manager.add_command('db', MigrateCommand)
+
 
 @app.route('/', methods=['GET', 'POST'])
 def hello():
@@ -20,4 +27,4 @@ def hello():
 
 
 if __name__ == '__main__':
-    app.run()
+    manager.run()
