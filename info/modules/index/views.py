@@ -1,5 +1,5 @@
 """create by zhouzhiyang"""
-# from info import redis_store
+from info import redis_store
 from . import index_blu
 from flask import render_template, current_app
 
@@ -8,7 +8,7 @@ from flask import render_template, current_app
 @index_blu.route('/', methods=['GET', 'POST'])
 def show_index_page():
     # 测试redis
-    # redis_store.set('name','zhangsan')
+    redis_store.set('name', 'zhangsan')
 
     # 测试session
     # session['name'] = 'banzhang'
