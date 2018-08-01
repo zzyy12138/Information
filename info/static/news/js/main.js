@@ -144,6 +144,27 @@ $(function(){
         }
 
         // 发起注册请求
+        var params = {
+            "mobile":mobile,
+            "sms_code":smscode,
+            "password":password
+        }
+        $.ajax({
+            url:'/passport/register',
+            type:'post',
+            data:JSON.stringify(params),
+            contentType:'application/json',
+            headers:{'X-CSRFToken':getCookie('csrf_token')},
+            success: function (resp) {
+                //判断是否注册成功
+                if(resp.errno == '0'){
+                    //重新加载当前页面
+                    window.location.reload()
+                }else{
+                    alert(resp.errmsg);
+                }
+            }
+        })
 
     })
 })
