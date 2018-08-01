@@ -1,7 +1,8 @@
 """create by zhouzhiyang"""
 from info import redis_store
+from info.models import User
 from . import index_blu
-from flask import render_template, current_app
+from flask import render_template, current_app, session
 
 
 # 首页内容
@@ -25,7 +26,23 @@ def show_index_page():
     # current_app.logger.warning('警告信息++')
     # current_app.logger.error('错误信息++')
 
-    return render_template('news/index.html')
+    # 获取session中的用户信息
+    user_id = session.get("user_id")
+
+    # 获取用户对象
+    user = None
+    if user_id:
+        try:
+            user = User.query.get(user_id)
+        except Exception as e:
+            current_app.logger.error(e)
+
+    data = {
+        # 判断user如果有值,返回左边内容,否则返回右边的值
+        "user_info": user.to_dict() if user else ""
+    }
+
+    return render_template('news/index.html', data=data)
 
 
 # 浏览器在访问,在访问每个网站的时候,都会发送一个Get请求,向/favicon.ico地址获取logo
