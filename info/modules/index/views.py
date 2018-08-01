@@ -25,9 +25,7 @@ def show_index_page():
     # current_app.logger.warning('警告信息++')
     # current_app.logger.error('错误信息++')
 
-
-    # return render_template('news/index.html')
-    return "hello"
+    return render_template('news/index.html')
 
 
 # 浏览器在访问,在访问每个网站的时候,都会发送一个Get请求,向/favicon.ico地址获取logo
