@@ -11,6 +11,23 @@ from . import passport_blu
 import re
 
 
+# 功能描述: 退出用户
+# 请求路径: /passport/logout
+# 请求方式: POST
+# 请求参数: 无
+# 返回值: errno, errmsg
+@passport_blu.route('/logout', methods=['POST'])
+def logout():
+    # 清空session
+    # session.clear()
+    session.pop('user_id', None)
+    session.pop('mobile', None)
+    session.pop('nick_name', None)
+
+    # 返回响应
+    return jsonify(errno=RET.OK, errmsg="退出成功")
+
+
 # 功能描述: 用户登陆
 # 请求路径: /passport/login
 # 请求方式: POST
