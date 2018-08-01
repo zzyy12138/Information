@@ -11,6 +11,60 @@ from . import passport_blu
 import re
 
 
+# 功能描述: 用户登陆
+# 请求路径: /passport/login
+# 请求方式: POST
+# 请求参数: mobile,password
+# 返回值: errno, errmsg
+@passport_blu.route('/login', methods=['POST'])
+def login():
+    """
+    思路分析:
+    1.获取参数
+    2.校验参数
+    3.通过手机号获取用户对象
+    4.判断用户对象是否存在
+    5.判断密码是否正确
+    6.保存用户的登陆信息到session ?
+    7.返回响应
+    :return:
+    """
+    # 1.获取参数
+    mobile = request.json.get('mobile')
+    password = request.json.get('password')
+
+    # 2.校验参数
+    if not all([mobile, password]):
+        return jsonify(errno=RET.PARAMERR, errmsg="参数不全")
+
+    if not re.match('1[35789]\d{9}', mobile):
+        return jsonify(errno=RET.DATAERR, errmsg="手机号格式有误")
+
+    # 3.通过手机号获取用户对象
+    try:
+        user = User.query.filter(User.mobile == mobile).first()
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(errno=RET.DBERR, errmsg="查询用户异常")
+
+    # 4.判断用户对象是否存在
+    if not user:
+        return jsonify(errno=RET.NODATA, errmsg="该用户未注册")
+
+    # 5.判断密码是否正确
+    # if user.password_hash != password:
+    if not user.check_passowrd(password):
+        return jsonify(errno=RET.DATAERR, errmsg="密码错误")
+
+    # 6.保存用户的登陆信息到session ?
+    session['user_id'] = user.id
+    session['mobile'] = user.mobile
+    session['nick_name'] = user.nick_name
+
+    # 7.返回响应
+    return jsonify(errno=RET.OK, errmsg="登陆成功")
+
+
 # 功能描述: 注册用户
 # 请求路径: /passport/register
 # 请求方式: POST
