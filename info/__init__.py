@@ -53,8 +53,12 @@ def create_app(config_name):
     from info.modules.passport import passport_blu
     app.register_blueprint(passport_blu)
 
-    #添加函数到过滤器列表中
-    app.add_template_filter(do_index_class,"index_class")
+    # 注册news_blu蓝图到app
+    from info.modules.news import news_blu
+    app.register_blueprint(news_blu)
+
+    # 添加函数到过滤器列表中
+    app.add_template_filter(do_index_class, "index_class")
 
     # 拦截用户的响应,通过after_request,
     @app.after_request
