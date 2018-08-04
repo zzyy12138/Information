@@ -1,5 +1,7 @@
 import random
 
+from datetime import datetime
+
 from flask import make_response, request, jsonify, current_app, json, session
 
 from info import redis_store, constants, db
@@ -77,6 +79,9 @@ def login():
     session['user_id'] = user.id
     session['mobile'] = user.mobile
     session['nick_name'] = user.nick_name
+
+    # 用户最后登陆时间,当前系统时间
+    user.last_login = datetime.now()
 
     # 7.返回响应
     return jsonify(errno=RET.OK, errmsg="登陆成功")

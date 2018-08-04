@@ -655,7 +655,7 @@ body{
 
 
 .collected{
-    display:inline-block;
+    /*display:inline-block;*/
     width:100px;
     height:36px;
     color:#666;
