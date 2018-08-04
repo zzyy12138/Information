@@ -10,6 +10,8 @@ from flask_wtf.csrf import CSRFProtect, generate_csrf
 from config import config_dict
 
 # 创建db对象
+from info.utils.commons import do_index_class
+
 db = SQLAlchemy()
 
 # 定义redis_store
@@ -50,6 +52,9 @@ def create_app(config_name):
     # 注册passport_blu蓝图到app
     from info.modules.passport import passport_blu
     app.register_blueprint(passport_blu)
+
+    #添加函数到过滤器列表中
+    app.add_template_filter(do_index_class,"index_class")
 
     # 拦截用户的响应,通过after_request,
     @app.after_request
