@@ -297,12 +297,20 @@ def news_detail(news_id):
 
         comment_list.append(comment_dict)
 
+    # 判断当前用户有没有,关注过该新闻的作者
+    is_followed = False
+    if g.user and news.user:
+        # 登陆的用户在作者的粉丝列表中
+        if g.user in news.user.followers:
+            is_followed = True
+
     data = {
         "user_info": g.user.to_dict() if g.user else "",
         "click_news_list": click_news_list,
         "news": news.to_dict(),
         "is_collected": is_collected,
-        "comments": comment_list
+        "comments": comment_list,
+        "is_followed": is_followed
 
     }
 
