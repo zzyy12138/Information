@@ -1,7 +1,7 @@
 """create by zhouzhiyang"""
 
 from info import db
-from info.models import User, News, Comment
+from info.models import User, News, Comment, CommentLike
 from info.utils.commons import user_login_data
 from info.utils.response_code import RET
 from . import news_blu
@@ -185,21 +185,21 @@ def news_detail(news_id):
         current_app.logger.error(e)
         return jsonify(errno=RET.DBERR, errmsg="获取评论失败")
 
-    # my_like_comment_ids = []
-    # if g.user:
-    #     try:
-    #         # 获取所有的评论编号
-    #         comments_ids = [comm.id for comm in comments]
-    #
-    #         # 获取到登陆用户,的点赞对象
-    #         comment_like_list = CommentLike.query.filter(CommentLike.comment_id.in_(comments_ids),
-    #                                                      CommentLike.user_id == g.user.id).all()
-    #
-    #         # 获取用户点赞过的comment_id
-    #         my_like_comment_ids = [comm_like.comment_id for comm_like in comment_like_list]
-    #     except Exception as e:
-    #         current_app.logger.error(e)
-    #         return jsonify(errno=RET.DBERR, errmsg="查询失败")
+    my_like_comment_ids = []
+    if g.user:
+        try:
+            # 获取所有的评论编号
+            comments_ids = [comm.id for comm in comments]
+
+            # 获取到登陆用户,的点赞对象
+            comment_like_list = CommentLike.query.filter(CommentLike.comment_id.in_(comments_ids),
+                                                         CommentLike.user_id == g.user.id).all()
+
+            # 获取用户点赞过的comment_id
+            my_like_comment_ids = [comm_like.comment_id for comm_like in comment_like_list]
+        except Exception as e:
+            current_app.logger.error(e)
+            return jsonify(errno=RET.DBERR, errmsg="查询失败")
 
     # 将所有评论遍历成字典
     comment_list = []
@@ -207,9 +207,9 @@ def news_detail(news_id):
 
         comment_dict = comment.to_dict()
         comment_dict['is_like'] = False
-        # # if 当前用户是否有登陆 and 评论编号在用户的点赞对象列表中:
-        # if g.user and comment.id in my_like_comment_ids:
-        #     comment_dict['is_like'] = True
+        # if 当前用户是否有登陆 and 评论编号在用户的点赞对象列表中:
+        if g.user and comment.id in my_like_comment_ids:
+            comment_dict['is_like'] = True
 
         comment_list.append(comment_dict)
 
