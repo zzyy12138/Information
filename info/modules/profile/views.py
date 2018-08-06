@@ -10,6 +10,47 @@ from . import profile_blu
 from info.utils.image_storage import image_storage
 
 
+# 密码修改
+# 请求路径: /user/pass_info
+# 请求方式:GET,POST
+# 请求参数:GET无, POST有参数,old_password, new_password
+# 返回值:GET请求: user_pass_info.html页面,data字典数据, POST请求: errno, errmsg
+@profile_blu.route('/pass_info', methods=['GET', 'POST'])
+@user_login_data
+def pass_info():
+    """
+    思路分析:
+    1.第一次进来GET,渲染页面
+    2.获取参数
+    3.校验参数
+    4.判断旧密码是否正确
+    5.设置新密码
+    6.返回响应
+    :return:
+    """
+    # 1.第一次进来GET,渲染页面
+    if request.method == 'GET':
+        return render_template('news/user_pass_info.html')
+
+    # 2.获取参数
+    old_password = request.json.get("old_password")
+    new_password = request.json.get("new_password")
+
+    # 3.校验参数
+    if not all([old_password, new_password]):
+        return jsonify(errno=RET.PARAMERR, errmsg="参数不全")
+
+    # 4.判断旧密码是否正确
+    if not g.user.check_passowrd(old_password):
+        return jsonify(errno=RET.DATAERR, errmsg="旧密码错误")
+
+    # 5.设置新密码
+    g.user.password = new_password
+
+    # 6.返回响应
+    return jsonify(errno=RET.OK, errmsg="修改成功")
+
+
 # 头像设置
 # 请求路径: /user/pic_info
 # 请求方式:GET,POST
