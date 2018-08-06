@@ -10,6 +10,89 @@ from . import profile_blu
 from info.utils.image_storage import image_storage
 
 
+# 新闻发布
+# 请求路径: /user/news_release
+# 请求方式:GET,POST
+# 请求参数:GET无, POST ,title, category_id,digest,index_image,content
+# 返回值:GET请求,user_news_release.html, data分类列表字段数据, POST,errno,errmsg
+@profile_blu.route('/news_release', methods=['GET', 'POST'])
+@user_login_data
+def news_release():
+    """
+    思路分析:
+    1.第一次进来GET请求,展示页面
+    2.获取参数
+    3.校验参数
+    4.上传图片
+    5.判断图片上传是否成功
+    6.创建新闻对象,设置属性
+    7.保存新闻对象到数据库
+    8.返回响应
+    :return:
+    """
+    # 1.第一次进来GET请求,展示页面
+    if request.method == 'GET':
+
+        try:
+            categories = Category.query.all()
+            categories.pop(0)  # 弹出最新
+        except Exception as e:
+            current_app.logger.error(e)
+            return jsonify(errno=RET.DBERR, errmsg="分类查询失败")
+
+        # 对象列表转成,字典列表, 统一使用字典格式返回
+        category_list = []
+        for category in categories:
+            category_list.append(category.to_dict())
+
+        return render_template('news/user_news_release.html', categories=categories)
+
+    # 2.获取参数
+    title = request.form.get("title")
+    category_id = request.form.get("category_id")
+    digest = request.form.get("digest")
+    index_image = request.files.get("index_image")
+    content = request.form.get("content")
+
+    # 3.校验参数
+    if not all([title, category_id, digest, index_image, content]):
+        return jsonify(errno=RET.PARAMERR, errmsg="参数不全")
+
+    # 4.上传图片
+    try:
+        image_name = image_storage(index_image.read())
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(errno=RET.THIRDERR, errmsg="七牛云上传异常")
+
+    # 5.判断图片上传是否成功
+    if not image_name:
+        return jsonify(errno=RET.NODATA, errmsg="图片上传失败")
+
+    # 6.创建新闻对象,设置属性
+    news = News()
+    news.title = title
+    news.source = '个人发布'
+    news.digest = digest
+    news.content = content
+    news.index_image_url = constants.QINIU_DOMIN_PREFIX + image_name
+    news.category_id = category_id
+    news.user_id = g.user.id
+    news.status = 1  # 0代表审核通过，1代表审核中，-1代表审核不通过
+
+    # 7.保存新闻对象到数据库
+    try:
+        db.session.add(news)
+        db.session.commit()
+    except Exception as e:
+        current_app.logger.error(e)
+        db.session.rollback()
+        return jsonify(errno=RET.DBERR, errmsg="新闻发布失败")
+
+    # 8.返回响应
+    return jsonify(errno=RET.OK, errmsg="新闻发布成功")
+
+
 # 获取收藏列表
 # 请求路径: /user/collection
 # 请求方式:GET
