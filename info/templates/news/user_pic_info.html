@@ -14,7 +14,13 @@
         <h3>头像设置</h3>
         <div class="form-group">
             <label class="label01">当前图像：</label>
-            <img src="../../static/news/images/user_pic.png" alt="用户图片" class="now_user_pic">
+            {# 判断是否有用户touxiang  #}
+            {% if data.user_info.avatar_url %}
+                <img src="{{ data.user_info.avatar_url }}" alt="用户图片" class="now_user_pic">
+            {% else %}
+                <img src="../../static/news/images/user_pic.png" alt="用户图片" class="now_user_pic">
+            {% endif %}
+
         </div>
         <div class="form-group">
             <label>上传图像：</label>
