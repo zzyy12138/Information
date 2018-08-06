@@ -3,17 +3,34 @@
 <head>
 	<meta charset="UTF-8">
 	<title>用户中心</title>
-	<link rel="stylesheet" type="text/css" href="../css/reset.css">
-	<link rel="stylesheet" type="text/css" href="../css/jquery.pagination.css">
-    <link rel="stylesheet" type="text/css" href="../css/main.css">
-    <script type="text/javascript" src="../js/jquery-1.12.4.min.js"></script>
-	<script type="text/javascript" src="../js/jquery.pagination.min.js"></script>
+	<link rel="stylesheet" type="text/css" href="../../static/news/css/reset.css">
+	<link rel="stylesheet" type="text/css" href="../../static/news/css/jquery.pagination.css">
+    <link rel="stylesheet" type="text/css" href="../../static/news/css/main.css">
+    <script type="text/javascript" src="../../static/news/js/jquery-1.12.4.min.js"></script>
+	<script type="text/javascript" src="../../static/news/js/jquery.pagination.min.js"></script>
 </head>
 <body class="inframe_body">
     <div class="news_list">
         <h3>新闻列表</h3>
         <ul class="article_list">
-            <li><a href="../../../templates/news/user_news_release.html">智能音箱“不智能”：这次轮到三星语音助手Bixby被吐槽了</a><em class="pass">已通过</em><span>2018-1-17</span></li>
+
+            {% for news in data.news_list %}
+                {% if news.status == 0 %}
+                    <li><a href="/news/{{ news.id }}" target="_blank">{{ news.title }}</a><em class="pass">已通过</em><span>{{ news.create_time }}</span></li>
+                {% elif news.status == 1 %}
+                    <li><a href="#">{{ news.title }}</a><em class="review">审核中</em><span>{{ news.create_time }}</span></li>
+                {% else %}
+                    <li>
+                        <a href="#">{{ news.title }}</a>
+                        <em class="nopass">未通过</em>
+                        <span>{{ news.create_time }}</span>
+                        <b>未通过原因：{{ news.reason }}</b>
+                    </li>
+                {% endif %}
+            {% endfor %}
+
+            {#
+            <li><a href="user_news_release.html">智能音箱“不智能”：这次轮到三星语音助手Bixby被吐槽了</a><em class="pass">已通过</em><span>2018-1-17</span></li>
             <li><a href="#">智能音箱“不智能”：这次轮到三星语音助手Bixby被吐槽了</a><em class="pass">已通过</em><span>2018-1-17</span></li>
             <li><a href="#">智能音箱“不智能”：这次轮到三星语音助手Bixby被吐槽了</a><em class="review">审核中</em><span>2018-1-17</span></li>
             <li><a href="#">智能音箱“不智能”：这次轮到三星语音助手Bixby被吐槽了</a><em class="review">审核中</em><span>2018-1-17</span></li>
@@ -29,6 +46,8 @@
                 <span>2018-1-17</span>
                 <b>未通过原因：因为写的太煽情,因为写的太煽情,因为写的太煽情,因为写的太煽情,</b>
             </li>
+            #}
+
         </ul>
         <div id="pagination" class="page"></div>
         <script>
@@ -37,10 +56,11 @@
 
             $(function(){
                 $("#pagination").pagination({
-                    currentPage: 2,
-                    totalPage: 3,
+                    currentPage: {{ data.currentPage }},
+                    totalPage: {{ data.totalPage }},
                     callback: function(current) {
-                        alert('ok!');
+                        alert(current);
+                        window.location.href = '/user/news_list?p='+current
                     }
                 });
             });
