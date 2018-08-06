@@ -4,13 +4,15 @@ from logging.handlers import RotatingFileHandler
 
 import redis
 from flask import Flask
+from flask import g
+from flask import render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask_session import Session
 from flask_wtf.csrf import CSRFProtect, generate_csrf
 from config import config_dict
 
 # 创建db对象
-from info.utils.commons import do_index_class
+from info.utils.commons import do_index_class, user_login_data
 
 db = SQLAlchemy()
 
@@ -72,6 +74,14 @@ def create_app(config_name):
         # 设置到cookie中
         resp.set_cookie('csrf_token', csrf_token)
         return resp
+
+    # 对404页面进行统一返回
+    # 需要使用errorhandler监听
+    @app.errorhandler(404)
+    @user_login_data
+    def page_not_founc(e):
+        data = {"user_info": g.user.to_dict() if g.user else ""}
+        return render_template('news/404.html', data=data)
 
     print(app.url_map)
     return app
