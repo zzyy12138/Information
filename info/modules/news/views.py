@@ -8,6 +8,90 @@ from . import news_blu
 from flask import render_template, session, current_app, g, jsonify, abort, request
 
 
+# 点赞,取消点赞
+# 请求路径: /news/comment_like
+# 请求方式: POST
+# 请求参数:news_id[可选],comment_id,action,g.user
+# 返回值: errno,errmsg
+@news_blu.route('/comment_like', methods=['POST'])
+@user_login_data
+def comment_like():
+    """
+    思路分析:
+    0.判断用户是否登陆
+    1.获取参数
+    2.校验参数
+    3.通过评论编号获取评论对象
+    4.判断评论对象是否存在
+    5.根据操作类型,点赞/取消点赞
+    6.更新数据库
+    7.返回响应
+    :return:
+    """
+
+    # 0.判断用户是否登陆
+    if not g.user:
+        return jsonify(errno=RET.NODATA, errmsg="用户未登录")
+
+    # 1.获取参数
+    comment_id = request.json.get('comment_id')
+    action = request.json.get('action')
+
+    # 2.校验参数
+    if not all([comment_id, action]):
+        return jsonify(errno=RET.PARAMERR, errmsg="参数不全")
+
+    if not action in ["add", "remove"]:
+        return jsonify(errno=RET.DATAERR, errmsg="操作类型有误")
+
+    # 3.通过评论编号获取评论对象
+    try:
+        comment = Comment.query.get(comment_id)
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(errno=RET.DBERR, errmsg="查询失败")
+
+    # 4.判断评论对象是否存在
+    if not comment:
+        return jsonify(errno=RET.NODATA, errmsg="评论不存在")
+
+    # 5.根据操作类型,点赞/取消点赞
+    if action == "add":
+        # 判断用户是否点过赞
+        comment_like = CommentLike.query.filter(CommentLike.comment_id == comment_id,
+                                                CommentLike.user_id == g.user.id).first()
+        if not comment_like:
+            # 创建点赞对象,设置属性
+            comment_like = CommentLike()
+            comment_like.comment_id = comment_id
+            comment_like.user_id = g.user.id
+
+            db.session.add(comment_like)
+
+            # 点赞数量+1
+            comment.like_count += 1
+    else:
+        # 判断用户是否点过赞
+        comment_like = CommentLike.query.filter(CommentLike.comment_id == comment_id,
+                                                CommentLike.user_id == g.user.id).first()
+        if comment_like:
+            # 删除点赞
+            db.session.delete(comment_like)
+
+            # 点赞数量-1
+            comment.like_count -= 1
+
+    # 6.更新数据库
+    try:
+        db.session.commit()
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(errno=RET.DBERR, errmsg="操作失败")
+
+    # 7.返回响应
+    return jsonify(errno=RET.OK, errmsg="操作成功")
+
+
 # 新闻评论
 # 请求路径: /news/news_comment
 # 请求方式: POST
